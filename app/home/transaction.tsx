@@ -1,8 +1,9 @@
 import { Separator } from "@/components/ui/separator";
 
+type Transaction = Array<[string, string, number]>;
 type Props = {
     date: string;
-    data: Array<[string, string, number]>;
+    data?: Transaction;
   };
 
 const Transaction: React.FC<Props> = ({ date, data }) => {
@@ -10,7 +11,7 @@ const Transaction: React.FC<Props> = ({ date, data }) => {
     <div>
         <div className="mb-2">{date}</div>
         <div className="border border-gray-500 rounded-md">
-          {data.map((item, index) => (
+          {data!.map((item, index) => (
             <>
               <div
                 key={index}
@@ -24,12 +25,12 @@ const Transaction: React.FC<Props> = ({ date, data }) => {
                         alt="avatar"
                         />
                     </div>
-                  <div className="text-[1.10rem]">{item[0]}</div>
+                  <div className="text-[1.10rem] w-[45vw] truncate">{item[0]}</div>
                 </div>
                 {item[2] > 0 ? (<div className="px-1 border rounded-md bg-[#d9c3ff] text-black">{item[2]} $</div>):(<div>{item[2]} $</div>)}
                 
               </div>
-              {index !== data.length - 1 && <Separator />}
+              {index !== data!.length - 1 && <Separator />}
             </>
           ))}
         </div>

@@ -3,11 +3,7 @@
 import { createContext, useEffect, useState } from "react";
 import { NextUIProvider } from "@nextui-org/react";
 import { WagmiConfig, createConfig } from "wagmi";
-import {
-  ConnectKitProvider,
-  getDefaultConfig,
-} from "connectkit";
-
+import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 
 const config = createConfig(
   getDefaultConfig({
@@ -20,11 +16,29 @@ const config = createConfig(
   })
 );
 
-export const ProviderContext = createContext<{}>({});
+export type Transaction = Array<[string, string, number]>;
+export const ProviderContext = createContext<{
+  balance?: number;
+  setBalance?: (balance: number) => void;
+  transactions?: Transaction;
+  setTransactions?: (transactions: Transaction | ((prevTransactions: Transaction) => Transaction)) => void;
+}>({});
 
 export default function Provider({ children }: { children: React.ReactNode }) {
+  const [balance, setBalance] = useState<number>(157.23);
+  const [transactions, setTransactions] = useState<Transaction>([
+    ["AAVE", "AAVE", 210.2],
+    ["Jhon Doe", "Jhon Doe", -32.6],
+  ]);
   return (
-    <ProviderContext.Provider value={{}}>
+    <ProviderContext.Provider
+      value={{
+        balance,
+        setBalance,
+        transactions,
+        setTransactions,
+      }}
+    >
       <WagmiConfig config={config}>
         <ConnectKitProvider>
           <NextUIProvider>{children}</NextUIProvider>
