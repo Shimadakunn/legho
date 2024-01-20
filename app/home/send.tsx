@@ -47,6 +47,7 @@ const Send: React.FC<SendProps> = ({ open, setOpen, address }) => {
     data: hash,
     error,
     status,
+    isLoading,
     sendTransaction,
   } = useSendTransaction();
 
@@ -67,7 +68,6 @@ const Send: React.FC<SendProps> = ({ open, setOpen, address }) => {
   const [receiver, setReceiver] = useState<string>("");
   const [amount, setAmount] = useState<number>();
   const [selectedCrypto, setSelectedCrypto] = useState("GHO");
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (address) {
@@ -76,59 +76,44 @@ const Send: React.FC<SendProps> = ({ open, setOpen, address }) => {
   }, [address]);
 
   async function Send() {
-    if (
-      amount &&
-      balance &&
-      setBalance &&
-      setTransactions &&
-      Number(
-        (
-          amount *
-          cryptos.find((crypto) => crypto.value === selectedCrypto)!.price
-        ).toFixed(4)
-      ) <= balance
-    ) {
-      setIsLoading(true);
-      setTimeout(() => {
-        setBalance!(
-          balance -
-            Number(
-              (
-                amount *
-                cryptos.find((crypto) => crypto.value === selectedCrypto)!.price
-              ).toFixed(2)
-            )
-        );
-        setTransactions!((prevTransactions) => [
-          [
-            receiver,
-            receiver,
-            Number(
-              (
-                amount *
-                cryptos.find((crypto) => crypto.value === selectedCrypto)!.price
-              ).toFixed(2)
-            ),
-          ],
-          ...prevTransactions,
-        ]);
-        setReceiver("");
-        setAmount(0);
-        toast({
-          title: "Funds sent",
-        });
-        setOpen(false);
-        setIsLoading(false);
-      }, 1000);
-    } else {
+    sendTransaction({to: receiver, value: parseEther(amount!.toString())});
+    if (!isLoading && amount && balance && status === "success") {
+      setBalance!(
+        balance -
+          Number(
+            (
+              amount *
+              cryptos.find((crypto) => crypto.value === selectedCrypto)!.price
+            ).toFixed(2)
+          )
+      );
+      setTransactions!((prevTransactions) => [
+        [
+          receiver,
+          receiver,
+          Number(
+            (
+              amount *
+              cryptos.find((crypto) => crypto.value === selectedCrypto)!.price
+            ).toFixed(2)
+          ),
+        ],
+        ...prevTransactions,
+      ]);
+      setReceiver("");
+      setAmount(0);
+      toast({
+        title: "Funds sent",
+      });
+      setOpen(false);
+    } else if (!isLoading && status === "error") {
       toast({
         variant: "destructive",
         title: "Transaction failed",
         description: "Please check your balance and your receiver address",
       });
     }
-  };
-
+  }
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerContent className="">
